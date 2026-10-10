@@ -1,0 +1,26 @@
+/*
+reports action audit log 
+
+
+*/
+
+enum ReportTarget {
+   POST 
+   COMMENT 
+   MESSAGE 
+   USER 
+}
+
+enum ReportReason {
+    SPAM  
+    HARASSMENT
+    HATE_SPEECH
+    NUDITY
+    MISINFORMATION
+    OTHER
+}
+
+enum ReportStatus {
+    PENDING
+    RE
+}
