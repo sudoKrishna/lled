@@ -1,45 +1,52 @@
-/*
-what come in the user.schema 
-
-id random 
-name
-email unique
-password 
-displayname
-avtral 
-post 
-reel 
-bio
-age
-isprivate
-following
-folwer
-createat 
-updateat 
-
-
-*/
-
+/**
+ * what come in the user.schema
+ * id random
+ * name
+ * email unique
+ * password
+ * displayname
+ * avtral
+ * post
+ * reel
+ * bio
+ * age
+ * isprivate
+ * following
+ * folwer
+ * createat
+ * updateat
+ */
 model User {
-    id  String @id @default(cuid())
-    username String @unique
-    email String @unique
-    passwordHash String?
-    displayname String
-    bio String?  @db.VarChar(300)
-    avatarUrl String?
-    isPrivate Boolean @default(false)
-    createAt DateTime @default(now())
-    updateAt DateTime @updatedAt
+  id        String   @id @default(cuid())
+  email     String   @unique
+  username  String   @unique
+  password  String?                    
+  name      String?
+  bio       String?   @db.VarChar(300)
+  avatarUrl String?
+  bannerUrl String?
 
-    posts Post[]
-    comments Comment[]
-    likes Like[]
-    reposts Repost[]
-    followers Follow[] @relation("following")
-    following Follow[] @relation("follower")
-    conversation ConversationParticipant[]
-    sentMessages Message[]
+  followerCount  Int @default(0)
+  followingCount Int @default(0)
 
-    @@index([createAt])
+  isVerified Boolean @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  following Follow[] @relation("follower")   
+  followers Follow[] @relation("following")  
+  posts Post[]
+  comments Comment[]
+  likes    Like[]
+  reposts  Repost[]
+
+  conversations ConversationParticipant[]
+  sentMessages  Message[]
+  reports            Report[]                @relation("UserReports")
+  moderationActions  ModerationActionRecord[]
+  moderationState    UserModerationState?
+
+  @@index([username])
+  @@index([createdAt])
+  @@map("users")
 }

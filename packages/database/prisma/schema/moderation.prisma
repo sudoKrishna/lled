@@ -22,5 +22,66 @@ enum ReportReason {
 
 enum ReportStatus {
     PENDING
-    RE
+    REVIEWED
+    DISMISSED
+}
+
+enum ModerationAction {
+    NONE
+    CONTENT_HIDDEN
+    USER_WARNED
+    USER_SUSPENDED
+    USER_BANNED
+}
+
+model Report {
+    id String @id @default(cuid())
+    reporterId String
+    targetType ReportTarget
+    targetId String
+    reason ReportReason
+    details String?  @db.VarChar(500)
+    status ReportStatus @default(PENDING)
+    createdAt DateTime @default(now())
+    reviewedAt DateTime?
+
+    reporter User @relation("UserReports", fields: [reporterId], references: [id], onDelete: Cascade)
+    actions ModerationActionRecord[] @relation("ReportActions")
+
+    @@index([status, createdAt])
+    @@index([targetType, targetId])
+    @@map("reports")
+}
+
+model ModerationActionRecord {
+    id String @id @default(cuid())
+    reportId String?
+    moderatorId String
+    action ModerationAction
+    targetType ReportTarget
+    targetId String
+    note String?
+    createdAt DateTime @default(now())
+
+    report Report? @relation("ReportActions", fields: [reportId], references: [id], onDelete: Cascade)
+    moderator User @relation(fields: [moderatorId], references: [id], onDelete: Cascade)
+
+    @@index([moderatorId, createdAt])
+    @@index([targetType, targetId])
+    @@map("moderation_actions")
+}
+
+
+model UserModerationState {
+  id          String   @id @default(cuid())
+  userId      String   @unique
+  isSuspended Boolean  @default(false)
+  suspendedUntil DateTime?
+  isBanned    Boolean  @default(false)
+  warningCount Int @default(0)
+  updatedAt   DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_moderation_states")
 }
