@@ -1,0 +1,47 @@
+model Comment {
+    id String @id @default(cuid())
+    postId  String
+    authorId  String
+    content  String @db.VarChar(1000)
+    status PostStatus @default(ACTIVE)
+    createAt DateTime @default(now())
+    editedAt DateTime?
+    deleteAt DateTime ?
+
+    post  Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    author User @relation(fields: [authorId],references: [id], onDelete: Cascade)
+
+    @@index([postId, createAt])
+    @@index([authorId])
+    @@map("comments")
+}
+
+model Like {
+    id String @id @default(cuid())
+    postId String
+    userId String
+    createAt DateTime @default(now())
+
+    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([postId, userId])
+    @@index([postId])
+    @@map("likes")
+}
+
+model Repost {
+    id String @id @default(cuid())
+    postId String
+    userId String
+    createAt DateTime @default(now())
+
+    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@index([postId, userId])
+    @@index([userId, createAt])
+    @@index([postId])
+    @@map("reposts")
+}
+

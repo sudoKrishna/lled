@@ -1,0 +1,96 @@
+enum PostVisibility {
+  PUBLIC
+  FOLLOWERS
+  PRIVATE
+}
+
+enum PostStatus {
+  ACTIVE
+  HIDDEN     
+  DELETED    
+}
+
+enum PostType {
+  TEXT
+  IMAGE
+  VIDEO
+  POLL      
+}
+
+/*
+id
+authorid
+type
+content
+visibility
+status
+commentCount
+reactioncount
+community
+*/
+
+model Post {
+    id String @id @default(cuid())
+    authorId String
+    type PostType @default(TEXT)
+    content String? @db.VarChar(2000)
+    visibility PostVisibility @default(PUBLIC)
+    status PostStatus @default(ACTIVE)
+
+    commentCount Int @default(0)
+    repostCount Int @default(0)
+    likeCount Int @default(0)
+
+    createAt DateTime @default(now())
+    updateAt DateTime @updatedAt
+    deleteAt DateTime?
+
+    author User @relation(fields: [authorId], references: [id] , onDelete: Cascade)
+    media PostMedia[]
+    comments Comment[]
+    likes Like[]
+    reposts Repost[]
+
+    originalPostId String?
+    originalPost Post? @relation("repostOf", fields: [originalPostId], references: [id], onDelete: Cascade)
+    repostedBy  Post[]  @relation("repostOf")
+
+    @@index([authorId, createAt])
+    @@index([createAt])
+    @@index([status, visibility])
+    @@index([originalPostId])
+    @@map("posts")
+ 
+}
+
+/*
+post media me kya aayega 
+id 
+postid
+url
+mediatype
+width
+height
+order
+createat
+post
+
+
+*/
+
+model PostMedia {
+    id String @id @default(cuid())
+    postId String
+    url String
+    mediaType String
+    width Int?
+    height Int?
+    order Int @default(0)
+    createdAt  DateTime @default(now())
+
+    post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+    @@index([postId])
+
+    @@map("post_media")
+}
