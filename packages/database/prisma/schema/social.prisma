@@ -1,0 +1,13 @@
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String  
+  followingId String   
+  createdAt   DateTime @default(now())
+
+  follower  User @relation("follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following User @relation("following", fields: [followingId], references: [id], onDelete: Cascade)
+
+  @@unique([followerId, followingId])   // can't follow the same person twice
+  @@index([followingId])                // fast "who follows me" lookups
+  @@map("follows")
+}

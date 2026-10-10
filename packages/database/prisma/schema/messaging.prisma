@@ -1,0 +1,75 @@
+/**
+ * conversation
+ * id
+ * isgroup
+ * name
+ * createby
+ * lastmessage
+ * createat
+ * participant
+ * message
+ * converstaionpaticipant
+ * id
+ * name
+ * converstaionid
+ * userid
+ * joinedat
+ * muted
+ * lastread
+ * message
+ * id
+ * converstaionid
+ * senverid
+ * content
+ * stauts
+ * create
+ * edit
+ */
+
+model Conversation {
+    id      String  @id @default(cuid())
+    isGroup Boolean @default(false)
+
+    name          String?
+    createBy      String?
+    lastMessageAt DateTime @default(now())
+
+    createAt DateTime @default(now())
+
+    participants ConversationParticipant[]
+    messages     Message[]
+
+    @@index([lastMessageAt])
+    @@map("conversations")
+}
+
+model ConversationParticipant {
+    id             String       @id @default(cuid())
+    converstaionId String
+    userId         String
+    joinedAt       DateTime     @default(now())
+    lastReadAt     DateTime     @default(now())
+    isMuted        Boolean      @default(false)
+    conversation   Conversation @relation(fields: [converstaionId], references: [id], onDelete: Cascade)
+    user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([converstaionId, userId])
+    @@index([userId])
+    @@map("conversation_participants")
+}
+
+model Message {
+    id             String     @id @default(cuid())
+    conversationId String
+    senderId       String
+    content        String     @db.VarChar(4000)
+    status         PostStatus @default(ACTIVE)
+    createdAt      DateTime   @default(now())
+    editedAt       DateTime?
+
+    conversation Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+    sender       User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+    @@index([conversationId, createdAt])
+    @@map("messages")
+}
