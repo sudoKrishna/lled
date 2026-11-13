@@ -11,12 +11,15 @@ const envSchema = z.object({
  PORT : z.coerce.number().int().min(1).max(65535).default(4000),
 
  HOST : z.string().default("0.0.0.0"),
+
+ JWT_SECRET : z.string().min(10),
 });
 
 const parsed = envSchema.safeParse(process.env);
 
 if(!parsed.success) {
-    console.error("invalid enviroment configuration:");
+    console.error("invalid enviroment configuration:", parsed.error.format());
+    process.exit(1);
 }
 
 export const env = parsed.data;
